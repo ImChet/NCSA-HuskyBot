@@ -1,7 +1,8 @@
 /venv
 /.idea
 __pycache__/
-/apikeys.py
 /cogs/__pycache__/
 /HuskyBot.log
 /WorkingFiles/FilesToCreate/
+/WorkingFiles/Databases/TicketingJSON.json
+/apikeys.py

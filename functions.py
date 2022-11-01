@@ -36,8 +36,7 @@ def ensureTicketingJSON_Exists():
     filepath = 'WorkingFiles/Databases/TicketingJSON.json'
     file_exists = os.path.exists(filepath)
     if file_exists is False:
-        f = open(filepath, "w")
-        f.close()
+        shutil.copyfile('Templates/TicketingJSON.json', filepath)
 
 
 # To lowercase

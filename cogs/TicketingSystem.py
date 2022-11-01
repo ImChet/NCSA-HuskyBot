@@ -7,12 +7,13 @@ from discord import utils, app_commands
 from discord.ext import commands
 from discord.ext.commands import has_permissions
 
+from functions import ensureTicketingJSON_Exists
+
 
 class TicketLauncher(discord.ui.View):
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.cooldown = commands.CooldownMapping.from_cooldown(1, 60,
-                                                               commands.BucketType.member)  # 60 second, per-member cooldown
+        self.cooldown = commands.CooldownMapping.from_cooldown(1, 60, commands.BucketType.member)  # 60 second, per-member cooldown
 
     @discord.ui.button(label='Create A Ticket', style=discord.ButtonStyle.gray, custom_id='ticket_button')
     async def ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -32,6 +33,8 @@ class TicketLauncher(discord.ui.View):
                 await interaction.response.send_message(
                     f'No need to create a new ticket! You already have a one open: {ticket.mention}', ephemeral=True)
             else:
+                # Double-check the JSON Database exists
+                ensureTicketingJSON_Exists()
                 messageid = interaction.message.id
                 with open('WorkingFiles/Databases/TicketingJSON.json', "r") as database:
                     data = json.load(database)
@@ -229,13 +232,11 @@ class TicketingSystem(commands.Cog, name='Ticketing System', description='Ticket
     @app_commands.command(name='launch-ticketing', description='Launches the ticketing system')
     @app_commands.describe(ticket_support_role='The role that you would like to assign as the dedicated Ticket Support')
     async def ticketing(self, interaction: discord.Interaction, ticket_support_role: discord.Role):
-
-        embed = discord.Embed(title='If you need any support, click the button below and create a ticket!',
-                              color=discord.Color.yellow())
+        embed = discord.Embed(title='If you need any support, click the button below and create a ticket!', color=discord.Color.yellow())
         ticket_launcher = await interaction.channel.send(embed=embed, view=TicketLauncher())
-        await interaction.response.send_message(
-            f'I launched the Ticketing System. I am now listening for help requests...', ephemeral=True)
-
+        await interaction.response.send_message(f'I launched the Ticketing System. I am now listening for help requests...', ephemeral=True)
+        # Double-check the JSON Database exists
+        ensureTicketingJSON_Exists()
         # use a .json to
         # {"messageid": ticket_launcher.id, "roleid": role.id}
         add_to_json = {"messageid": ticket_launcher.id,
