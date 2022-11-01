@@ -4,7 +4,6 @@ from datetime import datetime
 
 
 # Function Definitions
-
 def getCurrentDateTime():
     return f'{datetime.now().strftime("%m/%d/%Y")} at {(datetime.strptime(datetime.now().strftime("%H:%M:%S"), "%H:%M:%S")).strftime("%r")}'
 
