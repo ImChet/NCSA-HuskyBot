@@ -3,6 +3,7 @@
 __pycache__/
 /cogs/__pycache__/
 /HuskyBot.log
+/WorkingFiles
 /WorkingFiles/FilesToCreate/
 /WorkingFiles/Databases/TicketingJSON.json
 /apikeys.py
