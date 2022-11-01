@@ -1,12 +1,12 @@
 import asyncio
 import logging.handlers
 import os
-import discord
 
+import discord
 from discord.ext import commands
 
-from cogs.TicketingSystem import TicketLauncher, TicketInternals
 from apikeys import discordBotAPIKey
+from cogs.TicketingSystem import TicketLauncher, TicketInternals
 from functions import checkDirectoryExists, getCurrentDateTime, ensureTicketingJSON_Exists
 
 
