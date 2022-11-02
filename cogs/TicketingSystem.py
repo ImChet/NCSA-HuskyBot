@@ -30,8 +30,7 @@ class TicketLauncher(discord.ui.View):
             ticket_str = f'ticket-for-{interaction.user.name.lower().replace(" ", "-")}-{interaction.user.discriminator}'
             ticket = utils.get(interaction.guild.text_channels, name=ticket_str)
             if ticket is not None:
-                await interaction.response.send_message(
-                    f'No need to create a new ticket! You already have a one open: {ticket.mention}', ephemeral=True)
+                await interaction.response.send_message(f'No need to create a new ticket! You already have a one open: {ticket.mention}', ephemeral=True)
             else:
                 # Double-check the JSON Database exists
                 ensureTicketingJSON_Exists()
@@ -55,7 +54,13 @@ class TicketLauncher(discord.ui.View):
                     roleid: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True, embed_links=True, read_message_history=True)
                 }
 
-                channel = await interaction.guild.create_text_channel(name=ticket_str, overwrites=overwrites, reason=f'Ticket opened by {interaction.user}')
+                category_exists = discord.utils.get(interaction.guild.categories, name='TICKETS')
+
+                if not category_exists:
+                    category = await interaction.guild.create_category(f'TICKETS', reason='Ticketing category made by HuskyBot')
+                    channel = await category.create_text_channel(name=ticket_str, overwrites=overwrites, reason=f'Ticket opened for {interaction.user}')
+                elif category_exists:
+                    channel = await category_exists.create_text_channel(name=ticket_str, overwrites=overwrites, reason=f'Ticket opened for {interaction.user}')
 
                 # Send in ticket
                 await channel.send(f'{interaction.user.mention}, here is the ticket you requested.\n'
@@ -212,8 +217,13 @@ class TicketingSystem(commands.Cog, name='Ticketing System', description='Ticket
                                                     embed_links=True, read_message_history=True)
             }
 
-            channel = await interaction.guild.create_text_channel(name=ticket_string, overwrites=overwrites,
-                                                                  reason=f'Ticket opened by {interaction.user}')
+            category_exists = discord.utils.get(interaction.guild.categories, name='TICKETS')
+
+            if not category_exists:
+                category = await interaction.guild.create_category(f'TICKETS', reason='Ticketing category made by HuskyBot')
+                channel = await category.create_text_channel(name=ticket_string, overwrites=overwrites, reason=f'Ticket opened by {interaction.user} for {member.name}#{member.discriminator}')
+            elif category_exists:
+                channel = await category_exists.create_text_channel(name=ticket_string, overwrites=overwrites, reason=f'Ticket opened by {interaction.user} for {member.name}#{member.discriminator}')
 
             # Send in ticket
             await channel.send(f'{interaction.user.mention}, here is the ticket you requested for {member.mention}.\n'
@@ -337,8 +347,8 @@ class TicketingSystem(commands.Cog, name='Ticketing System', description='Ticket
     async def remove(self, interaction: discord.Interaction, member: discord.Member):
         if 'ticket-for-' in interaction.channel.name:
             await interaction.channel.set_permissions(member, overwrite=None)
-            await interaction.response.send_message(f'{member.mention} has been removed from this ticket.',
-                                                    ephemeral=True)
+            await interaction.response.send_message(f'{member.mention} has been removed from this ticket...\n\n'
+                                                    f'*However, if {member.mention} has the assigned Ticket Support role, they are unable to be removed from tickets while they have that role.*', ephemeral=True)
         else:
             await interaction.response.send_message(
                 f'This channel is not a ticket. I am only able to remove members from a ticket.')
