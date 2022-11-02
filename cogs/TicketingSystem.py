@@ -67,6 +67,7 @@ class TicketLauncher(discord.ui.View):
                                    f'Some things for you to know:\n\n'
                                    f'Ticket Support: {roleid.mention}\n'
                                    f'- Use the `/add` command to to add anyone else that you might need to see this ticket.\n'
+                                   f'- Use the `/transcript` command or click the below button to generate a .log file of the ticket\'s transcript.\n'
                                    f'- When you wish to close this ticket click the button below or use the `/close` command.',
                                    view=TicketInternals())
 
@@ -230,6 +231,7 @@ class TicketingSystem(commands.Cog, name='Ticketing System', description='Ticket
                                f'Some things for you to know:\n\n'
                                f'Ticket Support: {roleid.mention}\n'
                                f'- Use the `/add` command to to add anyone else that you might need to see this ticket.\n'
+                               f'- Use the `/transcript` command or click the below button to generate a .log file of the ticket\'s transcript.\n'
                                f'- When you wish to close this ticket click the button below or use the `/close` command.',
                                view=TicketInternals())
 
