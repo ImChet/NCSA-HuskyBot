@@ -11,7 +11,7 @@ from functions import checkDirectoryExists, getCurrentDateTime, ensureTicketingJ
 
 # Credits
 __author__ = "Andrew Martin"
-__version__ = "0.5"
+__version__ = "1.0"
 __maintainer__ = "Andrew Martin"
 __email__ = "apmartin@mtu.edu"
 __status__ = "In Progress"
