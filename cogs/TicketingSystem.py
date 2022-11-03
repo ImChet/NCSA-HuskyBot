@@ -106,8 +106,8 @@ class TicketInternals(discord.ui.View):
         else:
             with open(transcript_file, "a") as transcript:
                 generated = datetime.now().strftime("%m/%d/%Y at %H:%M:%S")
-                transcript.write(f'Transcript of: {interaction.channel.name}:\n\n\n'
-                                 f'Generated at {generated} by {interaction.user.name}#{interaction.user.discriminator}\n'
+                transcript.write(f'Transcript of {interaction.channel.name}:\n\n\n'
+                                 f'Generated: {generated} by {interaction.user.name}#{interaction.user.discriminator}\n'
                                  f'Date Formatting: MM/DD/YY at HH:MM:SS\n'
                                  f'Time Zone: UTC\n\n'
                                  f'Transcript:\n\n')
@@ -284,8 +284,8 @@ class TicketingSystem(commands.Cog, name='Ticketing System', description='Ticket
             else:
                 with open(transcript_file, "a") as transcript:
                     generated = datetime.now().strftime("%m/%d/%Y at %H:%M:%S")
-                    transcript.write(f'Transcript of: {interaction.channel.name}:\n\n\n'
-                                     f'Generated at {generated} by {interaction.user.name}#{interaction.user.discriminator}\n'
+                    transcript.write(f'Transcript of {interaction.channel.name}:\n\n\n'
+                                     f'Generated: {generated} by {interaction.user.name}#{interaction.user.discriminator}\n'
                                      f'Date Formatting: MM/DD/YY at HH:MM:SS\n'
                                      f'Time Zone: UTC\n\n'
                                      f'Transcript:\n\n')
