@@ -115,8 +115,8 @@ class TicketInternals(discord.ui.View):
                 # Look for the oldest messages first
                 async for message in interaction.channel.history(limit=None, oldest_first=True):
                     counter += 1
-                    # Ignore the first two messages in a ticket, just information sent by HuskyBot
-                    if counter not in [1, 2]:
+                    # Ignore the first message in a ticket, just information sent by HuskyBot that we don't need
+                    if counter not in [1]:
                         if message.type != discord.MessageType.chat_input_command:
                             created = datetime.strftime(message.created_at, "%m/%d/%Y at %H:%M:%S")
                             if message.edited_at:
@@ -293,8 +293,8 @@ class TicketingSystem(commands.Cog, name='Ticketing System', description='Ticket
                     # Look for the oldest messages first
                     async for message in interaction.channel.history(limit=None, oldest_first=True):
                         counter += 1
-                        # Ignore the first two messages in a ticket, just information sent by HuskyBot
-                        if counter not in [1, 2]:
+                        # Ignore the first message in a ticket, just information sent by HuskyBot that we don't need
+                        if counter not in [1]:
                             if message.type != discord.MessageType.chat_input_command:
                                 created = datetime.strftime(message.created_at, "%m/%d/%Y at %H:%M:%S")
                                 if message.edited_at:
