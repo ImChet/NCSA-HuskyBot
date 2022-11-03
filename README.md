@@ -3,6 +3,19 @@
 
 HuskyBot is a Discord bot made with the Discord.py library. The primary function of HuskyBot is to act as a ticketing system.
 
+
+## Install requirements
+
+### Go to the directory where your files have been downloaded or cloned, and in the terminal run the following:
+
+`pip install -r requirements.txt`
+
+### Python packages in use
+
+For additional information on the packages that HuskyBot utilizes, be sure to take a look at the linked PyPi documentation on each:
+
+* [discord.py](https://pypi.org/project/discord.py/)
+
 ## Commands
 
 ### Ticketing System
