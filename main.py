@@ -16,6 +16,7 @@ __maintainer__ = "Andrew Martin"
 __email__ = "apmartin@mtu.edu"
 __status__ = "In Progress"
 
+
 # HuskyBot constructor class
 class CreateBot(commands.Bot):
     def __init__(self):
