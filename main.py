@@ -14,7 +14,7 @@ __author__ = "Andrew Martin"
 __version__ = "1.0"
 __maintainer__ = "Andrew Martin"
 __email__ = "apmartin@mtu.edu"
-__status__ = "In Progress"
+__status__ = "Production"
 
 
 # HuskyBot constructor class
