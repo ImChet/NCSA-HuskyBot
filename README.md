@@ -1,5 +1,5 @@
 # HuskyBot
-###### (v1.0)
+###### (v1.1)
 
 HuskyBot is a Discord bot made with the Discord.py library. The primary function of HuskyBot is to act as a ticketing system.
 
