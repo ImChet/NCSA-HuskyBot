@@ -13,7 +13,7 @@ from functions import ensureTicketingJSON_Exists
 class TicketLauncher(discord.ui.View):
     def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.cooldown = commands.CooldownMapping.from_cooldown(1, 60, commands.BucketType.member)  # 60 second, per-member cooldown
+        self.cooldown = commands.CooldownMapping.from_cooldown(1, 120, commands.BucketType.member)  # 120 second, per-member cooldown
 
     @discord.ui.button(label='Create A Ticket', style=discord.ButtonStyle.gray, custom_id='ticket_button')
     async def ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -27,52 +27,62 @@ class TicketLauncher(discord.ui.View):
                 ephemeral=True)
         # No cooldown, continue
         else:
-            ticket_str = f'ticket-for-{interaction.user.name.lower().replace(" ", "-")}-{interaction.user.discriminator}'
+            ticket_str = f'ticket-1-for-{interaction.user.name.lower().replace(" ", "-")}-{interaction.user.discriminator}'
             ticket = utils.get(interaction.guild.text_channels, name=ticket_str)
+            string_count = 1
+
             if ticket is not None:
-                await interaction.response.send_message(f'No need to create a new ticket! You already have a one open: {ticket.mention}', ephemeral=True)
-            else:
-                # Double-check the JSON Database exists
-                ensureTicketingJSON_Exists()
-                messageid = interaction.message.id
-                with open('WorkingFiles/Databases/TicketingJSON.json', "r") as database:
-                    data = json.load(database)
+                text_channel_list = []
+                for channel in interaction.guild.text_channels:
+                    text_channel_list.append(channel.name)
 
-                data_scan = data['Ticketing_IDs']
-                for item in data_scan:
-                    value = item.get('messageid')
-                    if value == messageid:
-                        roleid = item.get('roleid')
+                for item in text_channel_list:
+                    if f'for-{interaction.user.name.lower().replace(" ", "-")}-{interaction.user.discriminator}' in item:
+                        string_count += 1
 
-                if type(roleid) is not discord.Role:
-                    roleid = interaction.guild.get_role(roleid)
+                ticket_str = f'ticket-{string_count}-for-{interaction.user.name.lower().replace(" ", "-")}-{interaction.user.discriminator}'
 
-                overwrites = {
-                    interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
-                    interaction.user: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True, embed_links=True, read_message_history=True),
-                    interaction.guild.me: discord.PermissionOverwrite(view_channel=True, send_messages=True, read_message_history=True),
-                    roleid: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True, embed_links=True, read_message_history=True)
-                }
+            # Double-check the JSON Database exists
+            ensureTicketingJSON_Exists()
+            messageid = interaction.message.id
+            with open('WorkingFiles/Databases/TicketingJSON.json', "r") as database:
+                data = json.load(database)
 
-                category_exists = discord.utils.get(interaction.guild.categories, name='TICKETS')
+            data_scan = data['Ticketing_IDs']
+            for item in data_scan:
+                value = item.get('messageid')
+                if value == messageid:
+                    roleid = item.get('roleid')
 
-                if not category_exists:
-                    category = await interaction.guild.create_category(f'TICKETS', reason='Ticketing category made by HuskyBot')
-                    channel = await category.create_text_channel(name=ticket_str, overwrites=overwrites, reason=f'Ticket opened for {interaction.user}')
-                elif category_exists:
-                    channel = await category_exists.create_text_channel(name=ticket_str, overwrites=overwrites, reason=f'Ticket opened for {interaction.user}')
+            if type(roleid) is not discord.Role:
+                roleid = interaction.guild.get_role(roleid)
 
-                # Send in ticket
-                await channel.send(f'{interaction.user.mention}, here is the ticket you requested.\n'
-                                   f'Some things for you to know:\n\n'
-                                   f'Ticket Support: {roleid.mention}\n'
-                                   f'- Use the `/add` command to to add anyone else that you might need to see this ticket.\n'
-                                   f'- Use the `/transcript` command or click the below button to generate a .log file of the ticket\'s transcript.\n'
-                                   f'- When you wish to close this ticket click the button below or use the `/close` command.',
-                                   view=TicketInternals())
+            overwrites = {
+                interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                interaction.user: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True, embed_links=True, read_message_history=True),
+                interaction.guild.me: discord.PermissionOverwrite(view_channel=True, send_messages=True, read_message_history=True),
+                roleid: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True, embed_links=True, read_message_history=True)
+            }
 
-                # Send a modal to get more information from the user
-                await interaction.response.send_modal(TicketInformationModal(ticket_str))
+            category_exists = discord.utils.get(interaction.guild.categories, name='TICKETS')
+
+            if not category_exists:
+                category = await interaction.guild.create_category(f'TICKETS', reason='Ticketing category made by HuskyBot')
+                channel = await category.create_text_channel(name=ticket_str, overwrites=overwrites, reason=f'Ticket opened for {interaction.user}')
+            elif category_exists:
+                channel = await category_exists.create_text_channel(name=ticket_str, overwrites=overwrites, reason=f'Ticket opened for {interaction.user}')
+
+            # Send in ticket
+            await channel.send(f'{interaction.user.mention}, here is the ticket you requested.\n'
+                               f'Some things for you to know:\n\n'
+                               f'Ticket Support: {roleid.mention}\n'
+                               f'- Use the `/add` command to to add anyone else that you might need to see this ticket.\n'
+                               f'- Use the `/transcript` command or click the below button to generate a .log file of the ticket\'s transcript.\n'
+                               f'- When you wish to close this ticket click the button below or use the `/close` command.',
+                               view=TicketInternals())
+
+            # Send a modal to get more information from the user
+            await interaction.response.send_modal(TicketInformationModal(ticket_str))
 
 
 class Confirmation(discord.ui.View):
@@ -195,48 +205,57 @@ class TicketingSystem(commands.Cog, name='Ticketing System', description='Ticket
     @app_commands.describe(member='The member that you would like to open a ticket for',
                            ticket_support_role='The role that you would like to assign as the dedicated Ticket Support to this ticket')
     async def ticket(self, interaction: discord.Interaction, member: discord.Member, ticket_support_role: discord.Role):
-        ticket_string = f'ticket-for-{member.name.lower().replace(" ", "-")}-{member.discriminator}'
+        ticket_string = f'ticket-1-for-{member.name.lower().replace(" ", "-")}-{member.discriminator}'
         ticket = utils.get(interaction.guild.text_channels, name=ticket_string)
+        string_count = 1
+
         if ticket is not None:
-            await interaction.response.send_message(
-                f'No need to create a new ticket! There is already one open: {ticket.mention}', ephemeral=True)
-        else:
-            roleid = ticket_support_role.id
+            text_channel_list = []
+            for channel in interaction.guild.text_channels:
+                text_channel_list.append(channel.name)
 
-            if type(roleid) is not discord.Role:
-                roleid = interaction.guild.get_role(roleid)
+            for item in text_channel_list:
+                if f'for-{member.name.lower().replace(" ", "-")}-{member.discriminator}' in item:
+                    string_count += 1
 
-            overwrites = {
-                interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
-                member: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True,
-                                                    embed_links=True, read_message_history=True),
-                interaction.user: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True,
-                                                              embed_links=True, read_message_history=True),
-                interaction.guild.me: discord.PermissionOverwrite(view_channel=True, send_messages=True,
-                                                                  read_message_history=True),
-                roleid: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True,
-                                                    embed_links=True, read_message_history=True)
-            }
+            ticket_string = f'ticket-{string_count}-for-{member.name.lower().replace(" ", "-")}-{member.discriminator}'
 
-            category_exists = discord.utils.get(interaction.guild.categories, name='TICKETS')
+        roleid = ticket_support_role.id
 
-            if not category_exists:
-                category = await interaction.guild.create_category(f'TICKETS', reason='Ticketing category made by HuskyBot')
-                channel = await category.create_text_channel(name=ticket_string, overwrites=overwrites, reason=f'Ticket opened by {interaction.user} for {member.name}#{member.discriminator}')
-            elif category_exists:
-                channel = await category_exists.create_text_channel(name=ticket_string, overwrites=overwrites, reason=f'Ticket opened by {interaction.user} for {member.name}#{member.discriminator}')
+        if type(roleid) is not discord.Role:
+            roleid = interaction.guild.get_role(roleid)
 
-            # Send in ticket
-            await channel.send(f'{interaction.user.mention}, here is the ticket you requested for {member.mention}.\n'
-                               f'Some things for you to know:\n\n'
-                               f'Ticket Support: {roleid.mention}\n'
-                               f'- Use the `/add` command to to add anyone else that you might need to see this ticket.\n'
-                               f'- Use the `/transcript` command or click the below button to generate a .log file of the ticket\'s transcript.\n'
-                               f'- When you wish to close this ticket click the button below or use the `/close` command.',
-                               view=TicketInternals())
+        overwrites = {
+            interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+            member: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True,
+                                                embed_links=True, read_message_history=True),
+            interaction.user: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True,
+                                                          embed_links=True, read_message_history=True),
+            interaction.guild.me: discord.PermissionOverwrite(view_channel=True, send_messages=True,
+                                                              read_message_history=True),
+            roleid: discord.PermissionOverwrite(view_channel=True, send_messages=True, attach_files=True,
+                                                embed_links=True, read_message_history=True)
+        }
 
-            # Send a modal to get more information from the user
-            await interaction.response.send_modal(TicketInformationModal(ticket_string))
+        category_exists = discord.utils.get(interaction.guild.categories, name='TICKETS')
+
+        if not category_exists:
+            category = await interaction.guild.create_category(f'TICKETS', reason='Ticketing category made by HuskyBot')
+            channel = await category.create_text_channel(name=ticket_string, overwrites=overwrites, reason=f'Ticket opened by {interaction.user} for {member.name}#{member.discriminator}')
+        elif category_exists:
+            channel = await category_exists.create_text_channel(name=ticket_string, overwrites=overwrites, reason=f'Ticket opened by {interaction.user} for {member.name}#{member.discriminator}')
+
+        # Send in ticket
+        await channel.send(f'{interaction.user.mention}, here is the ticket you requested for {member.mention}.\n'
+                           f'Some things for you to know:\n\n'
+                           f'Ticket Support: {roleid.mention}\n'
+                           f'- Use the `/add` command to to add anyone else that you might need to see this ticket.\n'
+                           f'- Use the `/transcript` command or click the below button to generate a .log file of the ticket\'s transcript.\n'
+                           f'- When you wish to close this ticket click the button below or use the `/close` command.',
+                           view=TicketInternals())
+
+        # Send a modal to get more information from the user
+        await interaction.response.send_modal(TicketInformationModal(ticket_string))
 
     # Need to have manage_channels permissions to run and see this command
     @app_commands.default_permissions(manage_channels=True)
