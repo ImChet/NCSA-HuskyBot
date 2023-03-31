@@ -7,4 +7,4 @@ __pycache__/
 /WorkingFiles/FilesToCreate/
 /WorkingFiles/Databases/
 /WorkingFiles/Databases/TicketingJSON.json
-/apikeys.py
+/.env

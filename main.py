@@ -5,7 +5,7 @@ import os
 import discord
 from discord.ext import commands
 
-from apikeys import discordBotAPIKey
+
 from cogs.TicketingSystem import TicketLauncher, TicketInternals
 from functions import checkDirectoryExists, getCurrentDateTime, ensureTicketingJSON_Exists
 
@@ -68,8 +68,20 @@ async def main():
     for extension in initial_extensions:
         await HuskyBot.load_extension(extension)
 
+# returns the discord API key for logging into discord
+def get_api_key():
+    # get api key from docker secrets
+    if os.path.exists("/run/secrets/apiKey"):
+        api_key = open("/run/secrets/apiKey").encoding("uft-8").readline()
+    elif os.getenv("apiKey") is not None:
+        api_key = os.getenv("apiKey")
+    return api_key
+
 
 if __name__ == '__main__':
     asyncio.run(main())
-
-HuskyBot.run(discordBotAPIKey, log_handler=None)
+try:
+    HuskyBot.run(get_api_key(), log_handler=None)
+except discord.LoginFailure:
+    logging.fatal("API Key not supplied or incorrect, please make a docker secret for the api key")
+    

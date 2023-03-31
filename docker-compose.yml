@@ -1,0 +1,15 @@
+version: '3'
+services:
+  support_bot:
+    build: ./
+    container_name: NCSA-Support-Bot
+    env_file:
+      - .env 
+#     secrets:
+#       - apiKey
+
+# secrets:
+#   apiKey:
+#     external: true
+
+# you can use either the ENV file or the docker secret for storing the API key    
