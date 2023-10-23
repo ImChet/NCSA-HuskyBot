@@ -201,6 +201,7 @@ So you made your new Bot, but it is not in any server yet. Here are the steps to
   * Make sure that you are aware of the consequences of requiring your bot to have the “Administrator” permission
 * The resulting URL that is generated at the bottom of the screen can be copied when all of the required permissions for your Bot have been checked
 * Paste the URL into your web browser and choose which server you would like to have your Bot join, and click "Authorize"
+* Next go to the Bot tab on the left side, scroll down to the "Privileged Gateway Intents" and ensure the correct ones are ticked. Since I don't really care about permissions, I will choose all 3x of them. Then click save.
 
 Your Bot should now have successfully joined the Discord Server of your choosing.
 
